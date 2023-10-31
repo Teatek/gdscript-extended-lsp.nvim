@@ -1,3 +1,5 @@
+local config = require("gdscript_extended.config")
+
 local U = {}
 
 function U.sort_table_by_name(table)
@@ -14,8 +16,8 @@ function U.floating_window_opts()
     local height = vim.api.nvim_get_option("lines")
 
     -- calculate our floating window size
-    local win_height = math.ceil(height * 0.8 - 4)
-    local win_width  = math.ceil(width * 0.8)
+    local win_height = math.ceil(height * config.options.floating_win_size - 4)
+    local win_width  = math.ceil(width * config.options.floating_win_size)
     -- and its starting position
     local row = math.ceil((height - win_height) / 2 - 1)
     local col = math.ceil((width - win_width) / 2)
@@ -26,7 +28,7 @@ function U.floating_window_opts()
         height = win_height,
         col = col,
         row = row,
-        border = "rounded",
+        border = config.options.floating_border_style,
         style = "minimal"
     }
 end

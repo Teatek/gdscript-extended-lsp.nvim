@@ -1,17 +1,12 @@
+local config = require("gdscript_extended.config")
 local utils = require("gdscript_extended.utils")
 local telescope = require("gdscript_extended.telescope")
 
+local M = {}
+
 local client_id = -1
 
-local M = {}
 local native_class_list = {}
-
-local _config = {
-    doc_style = 0,
-    on_attach = nil,
-    border = 0,
-    doc_extension = ".doc",
-}
 
 function M.parse_lsp_data_to_md()
     local result = {}
@@ -22,7 +17,7 @@ end
 function M.show_symbol_documentation(symbol)
     local bufnr = -1
     for _, v in pairs(vim.api.nvim_list_bufs()) do
-      if vim.api.nvim_buf_is_loaded(v) and string.find(vim.api.nvim_buf_get_name(v), symbol .. ".doc") then
+      if vim.api.nvim_buf_is_loaded(v) and string.find(vim.api.nvim_buf_get_name(v), symbol .. config.options.doc_file_extension) then
           bufnr = v
         break
       end
@@ -30,16 +25,14 @@ function M.show_symbol_documentation(symbol)
     if bufnr == -1 then
         bufnr = vim.api.nvim_create_buf(true, true)
         vim.api.nvim_buf_set_option(bufnr, "filetype", "markdown")
-        vim.api.nvim_buf_set_name(bufnr, symbol .. ".doc")
-        -- optional: change highlight, otherwise Pmenu is used
-        -- vim.api.nvim_set_option_value("winhl", "Normal:MyHighlight", {win = win})
+        vim.api.nvim_buf_set_name(bufnr, symbol .. config.options.doc_file_extension)
 
         -- request to LSP server
         local attached_buffers = vim.lsp.get_buffers_by_client_id(client_id)
         if #attached_buffers > 0 then
             vim.lsp.buf_request(attached_buffers[1], "textDocument/nativeSymbol", {
                 native_class = symbol, symbol_name = symbol
-            }, function (err, result, context, config)
+            }, function (err, result, _, _)
                 if result ~= nil then
                     local md_lines = vim.lsp.util.convert_input_to_markdown_lines(result.documentation)
                     md_lines[3] = "# Description"
@@ -143,18 +136,17 @@ function M.show_symbol_documentation(symbol)
                     end
 
                     -- quit buffer mapping
-                    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd',
+                    vim.api.nvim_buf_set_keymap(bufnr, 'n', config.options.keymaps.cursor,
                     '<Cmd>GodotDocCursor<CR>',
                     {noremap = true, silent = true}
                     )
-                    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<Esc>',
-                    '<Cmd>lua vim.api.nvim_win_close(' .. 0 .. ', true)<CR>',
-                    {noremap = true, silent = true}
-                    )
-                    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q',
-                    '<Cmd>lua vim.api.nvim_win_close(' .. 0 .. ', true)<CR>',
-                    {noremap = true, silent = true}
-                    )
+
+                    for _, value in pairs(config.options.keymaps.close) do
+                        vim.api.nvim_buf_set_keymap(bufnr, 'n', value,
+                        '<Cmd>lua vim.api.nvim_win_close(' .. 0 .. ', true)<CR>',
+                        {noremap = true, silent = true}
+                        )
+                    end
                 else
                     print("Native class not found.")
                 end
@@ -172,17 +164,14 @@ function M.show_symbol_documentation(symbol)
     return nil
 end
 
-function M.setup(config)
-    if config == nil then
-        config = _config
-    else
-        config = config
-    end
+function M.setup(opts)
+    -- user plugin config
+    config.setup(opts)
 
     -- LSP Setup
     require('lspconfig').gdscript.setup({
         on_attach = function(client, bufnr)
-            config.on_attach()
+            config.options.on_attach()
             if client_id == -1 then
                 client_id = client.id
             end
