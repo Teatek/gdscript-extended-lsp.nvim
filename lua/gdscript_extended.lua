@@ -16,6 +16,7 @@ end
 
 function M.show_symbol_documentation(symbol)
     local bufnr = -1
+    -- find in buffers list if we already search for this class before (then no need to request to lsp all the datas)
     for _, v in pairs(vim.api.nvim_list_bufs()) do
       if vim.api.nvim_buf_is_loaded(v) and string.find(vim.api.nvim_buf_get_name(v), symbol .. config.options.doc_file_extension) then
           bufnr = v
@@ -32,27 +33,30 @@ function M.show_symbol_documentation(symbol)
         if #attached_buffers > 0 then
             vim.lsp.buf_request(attached_buffers[1], "textDocument/nativeSymbol", {
                 native_class = symbol, symbol_name = symbol
-            }, function (err, result, _, _)
+            }, function (_, result, _, _)
                 if result ~= nil then
                     local md_lines = vim.lsp.util.convert_input_to_markdown_lines(result.documentation)
                     md_lines[3] = "# Description"
                     table.insert(md_lines, 4, "")
-                    vim.api.nvim_buf_set_lines(bufnr, 0, 0, true, {result.detail})
+                    local s = string.gsub(result.detail, "<Native> ", "")
+                    vim.api.nvim_buf_set_lines(bufnr, 0, 0, true, {"```gdscript", s, "```"})
                     vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, md_lines)
 
                     local properties = {}
                     for _, v in pairs(result.children) do
                         if v.kind == 7 then
                             md_lines = vim.lsp.util.convert_input_to_markdown_lines(v.documentation)
-                            local str_clean = string.gsub(v.detail, "var ", "")
-                            local prop = vim.split(string.gsub(str_clean, v.native_class .. ".", ""), ": ")
-                            table.insert(properties, {info = {prop[2] .. " " .. prop[1]}, desc = md_lines})
+                            local s = string.gsub(v.detail, v.native_class .. ".", "")
+                            table.insert(properties, {info = s, desc = md_lines})
                             if #properties == 1 then
-                                vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"# Properties", ""})
+                                vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"# Properties", "```gdscript"})
                             end
-                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, properties[#properties].info)
+                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {properties[#properties].info})
                             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {""})
                         end
+                    end
+                    if #properties > 0 then
+                        vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```"})
                     end
 
                     -- methods
@@ -60,14 +64,12 @@ function M.show_symbol_documentation(symbol)
                     for _, v in pairs(result.children) do
                         if v.kind == 6 then
                             md_lines = vim.lsp.util.convert_input_to_markdown_lines(v.documentation)
-                            local str_clean = string.gsub(v.detail, "func ", "")
-                            str_clean = string.gsub(str_clean, v.native_class .. ".", "")
-                            local prop = vim.split(str_clean, " --> ")
-                            table.insert(methods, {info = {prop[2] .. " " .. prop[1]}, desc = md_lines})
+                            local s = string.gsub(v.detail, v.native_class .. ".", "")
+                            table.insert(methods, {info = s, desc = md_lines})
                             if #methods == 1 then
-                                vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"# Methods", ""})
+                                vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"# Methods"})
                             end
-                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, methods[#methods].info)
+                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```gdscript", methods[#methods].info, "```"})
                         end
                     end
 
@@ -76,13 +78,12 @@ function M.show_symbol_documentation(symbol)
                     for _, v in pairs(result.children) do
                         if v.kind == 24 then
                             if not has_signals then
-                                vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# Signals", ""})
+                                vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# Signals"})
                                 has_signals = true
                             end
                             md_lines = vim.lsp.util.convert_input_to_markdown_lines(v.documentation)
-                            local str_clean = string.gsub(v.detail, "func " .. v.native_class .. ".", "")
-                            str_clean = string.gsub(str_clean, " --> void", "")
-                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {str_clean})
+                            local s = string.gsub(v.detail, v.native_class .. ".", "")
+                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```gdscript", s, "```"})
                             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, md_lines)
                             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {""})
                         end
@@ -93,14 +94,13 @@ function M.show_symbol_documentation(symbol)
                     for _, v in pairs(result.children) do
                         if v.kind == 14 then
                             if not has_enums then
-                                vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# Enumerations", ""})
+                                vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# Enumerations"})
                                 has_enums = true
                             end
                             md_lines = vim.lsp.util.convert_input_to_markdown_lines(v.documentation)
-                            local str_clean = string.gsub(v.detail, "const ", "")
-                            local prop = vim.split(string.gsub(str_clean, v.native_class .. ".", ""), ": ")
-                            local prop_value = vim.split(prop[2], " = ")
-                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {prop_value[1] .. " " .. prop[1] .. " = " .. prop_value[2]})
+                            local s = string.gsub(v.detail, v.native_class .. ".", "")
+                            s = string.gsub(s, "const", "var")
+                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```gdscript", s, "```"})
                             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, md_lines)
                             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {""})
                         end
@@ -111,8 +111,10 @@ function M.show_symbol_documentation(symbol)
                         vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# Property Descriptions", ""})
                     end
                     for _, v in pairs(properties) do
-                        vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, v.info)
-                        vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, v.desc)
+                        if #v.desc > 0 then
+                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```gdscript", v.info, "```"})
+                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, v.desc)
+                        end
                     end
 
                     -- method descriptions
@@ -120,8 +122,10 @@ function M.show_symbol_documentation(symbol)
                         vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# Method Descriptions", ""})
                     end
                     for _, v in pairs(methods) do
-                        vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, v.info)
-                        vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, v.desc)
+                        if #v.desc > 0 then
+                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```gdscript", v.info, "```"})
+                            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, v.desc)
+                        end
                     end
                     -- set buffer readonly option
                     vim.api.nvim_buf_set_option(bufnr, "readonly", true)
@@ -130,7 +134,10 @@ function M.show_symbol_documentation(symbol)
 
                     if vim.api.nvim_win_get_config(0).relative == '' then
                         -- current window isn't floating
-                        vim.api.nvim_open_win(bufnr, true, utils.floating_window_opts())
+                        local win = vim.api.nvim_open_win(bufnr, true, utils.floating_window_opts())
+                        vim.print(win)
+                        vim.api.nvim_win_set_option(win, "concealcursor", "n")
+                        vim.api.nvim_win_set_option(win, "conceallevel", 2)
                     else
                         vim.api.nvim_win_set_buf(0, bufnr)
                     end
@@ -170,7 +177,7 @@ function M.setup(opts)
 
     -- LSP Setup
     require('lspconfig').gdscript.setup({
-        on_attach = function(client, bufnr)
+        on_attach = function(client, _)
             config.options.on_attach()
             if client_id == -1 then
                 client_id = client.id
