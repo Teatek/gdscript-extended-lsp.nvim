@@ -7,10 +7,21 @@ function U.sort_table_by_name(table)
     return table
 end
 
+---Concatenate '# ' and string parameter
+---@param str string
+---@return string
 function U.convert_to_h1(str)
     return "# " .. str
 end
 
+---Get word on cursor position
+---@return string
+function U.get_word_on_cursor()
+    return vim.fn.expandcmd("<cword>")
+end
+
+---Floating window settings
+---@return table
 function U.floating_window_opts()
     local width = vim.api.nvim_get_option("columns")
     local height = vim.api.nvim_get_option("lines")

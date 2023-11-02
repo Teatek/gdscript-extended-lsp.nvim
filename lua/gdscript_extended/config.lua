@@ -1,15 +1,16 @@
 local M = {}
 
 M.defaults = {
-    on_attach = nil,
+    on_attach = function()
+    end,
     doc_file_extension = ".doc",
-    keymaps = {
+    doc_keymaps = {
         close = {"q", "<Esc>"},
-        cursor = "gD",
+        user_config = function()
+        end,
     },
-    win_style = 0,
-    floating_border_style = "rounded",
     floating_win_size = 0.8,
+    floating_border_style = "none",
 }
 
 M.options = {}
