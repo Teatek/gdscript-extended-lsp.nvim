@@ -4,8 +4,6 @@ if not has_telescope then
     error("gdscript-extended-lsp.nvim requires nvim-telescope/telescope.nvim")
 end
 
-local M = {}
-
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
 local actions = require("telescope.actions")
@@ -13,7 +11,7 @@ local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
 local gd_ext = require("gdscript_extended")
 
-function M.native_classes_default()
+local function native_classes_default()
     local classes = gd_ext.get_native_classes()
     if #classes > 0 then
         pickers.new({},
@@ -91,7 +89,7 @@ function M.native_classes_default()
     end
 end
 
-function M.native_classes_tab()
+local function native_classes_tab()
     local classes = gd_ext.get_native_classes()
     if #classes > 0 then
         pickers.new({},
@@ -121,7 +119,7 @@ function M.native_classes_tab()
     end
 end
 
-function M.native_classes_float()
+local function native_classes_float()
     local classes = gd_ext.get_native_classes()
     if #classes > 0 then
         pickers.new({},
@@ -151,7 +149,7 @@ function M.native_classes_float()
     end
 end
 
-function M.native_classes_split()
+local function native_classes_split()
     local classes = gd_ext.get_native_classes()
     if #classes > 0 then
         pickers.new({},
@@ -181,7 +179,7 @@ function M.native_classes_split()
     end
 end
 
-function M.native_classes_vsplit()
+local function native_classes_vsplit()
     local classes = gd_ext.get_native_classes()
     if #classes > 0 then
         pickers.new({},
@@ -213,10 +211,10 @@ end
 
 return telescope.register_extension({
     exports = {
-        default = M.native_classes_default,
-        float = M.native_classes_float,
-        split = M.native_classes_split,
-        vsplit = M.native_classes_vsplit,
-        tab = M.native_classes_tab,
+        default = native_classes_default,
+        float = native_classes_float,
+        split = native_classes_split,
+        vsplit = native_classes_vsplit,
+        tab = native_classes_tab,
     },
 })

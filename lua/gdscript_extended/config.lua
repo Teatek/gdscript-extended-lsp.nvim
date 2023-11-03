@@ -6,7 +6,7 @@ M.defaults = {
     doc_file_extension = ".doc",
     doc_keymaps = {
         close = {"q", "<Esc>"},
-        user_config = function()
+        user_config = function(bufnr)
         end,
     },
     floating_win_size = 0.8,
