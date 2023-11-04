@@ -41,14 +41,34 @@ end
 ---@param list table Section content
 local function add_section_with_description(bufnr, title, list)
     if #list > 0 then
-        vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# ".. title .. "Descriptions", ""})
+        vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# ".. title .. " Descriptions", ""})
     end
     for _, v in pairs(list) do
         if #v.desc > 0 then
             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```gdscript", v.info, "```"})
             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, v.desc)
+            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", ""})
         end
     end
+end
+
+---@param content string Content
+local function parse_markdown(content)
+    content = string.gsub(content, "%[b]", "**")
+    content = string.gsub(content, "%[/b]", "**")
+    content = string.gsub(content, "%[code]", "`")
+    content = string.gsub(content, "%[/code]", "`")
+    content = string.gsub(content, "%\t\t\t\t", "\n")
+    content = string.gsub(content, "%\t\t", "\n")
+    content = string.gsub(content, "%\t", "")
+    content = string.gsub(content, "%[codeblocks]", "")
+    content = string.gsub(content, "%[/codeblocks]", "")
+    content = string.gsub(content, "%[gdscript]", "```gdscript")
+    content = string.gsub(content, "%[/gdscript]", "```")
+    content = string.gsub(content, "%[csharp]", "```csharp")
+    content = string.gsub(content, "%[/csharp]", "```")
+    content = string.gsub(content, "%[%w+]", function (w) return "`" .. string.sub(w, 2, string.len(w)-1) .. "`" end)
+    return content
 end
 
 --- Create documentation buffer for a symbol name
@@ -71,18 +91,24 @@ local function add_content_to_buffer(symbol)
             vim.api.nvim_buf_set_option(bufnr, "filetype", "markdown")
             vim.api.nvim_buf_set_name(bufnr, filename)
 
+            result.documentation = parse_markdown(result.documentation)
             local md_lines = vim.lsp.util.convert_input_to_markdown_lines(result.documentation)
-            md_lines[3] = "# Description"
-            table.insert(md_lines, 4, "")
+            if #md_lines > 0 then
+                md_lines[3] = "# Description"
+                table.insert(md_lines, 4, "")
+            end
             local title = string.gsub(result.detail, "<Native> ", "")
             vim.api.nvim_buf_set_lines(bufnr, 0, 0, true, {"```gdscript", title, "```"})
             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, md_lines)
+            vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", ""})
 
             local properties = {}
             for _, v in pairs(result.children) do
                 if v.kind == 7 then
+                    v.documentation = parse_markdown(v.documentation)
                     md_lines = vim.lsp.util.convert_input_to_markdown_lines(v.documentation)
-                    local s = string.gsub(v.detail, v.native_class .. ".", "")
+                    vim.print(md_lines)
+                    local s = string.gsub(v.detail, v.native_class .. "%.", "")
                     table.insert(properties, {info = s, desc = md_lines})
                     if #properties == 1 then
                         vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"# Properties", "```gdscript"})
@@ -99,8 +125,9 @@ local function add_content_to_buffer(symbol)
             local methods = {}
             for _, v in pairs(result.children) do
                 if v.kind == 6 then
+                    v.documentation = parse_markdown(v.documentation)
                     md_lines = vim.lsp.util.convert_input_to_markdown_lines(v.documentation)
-                    local s = string.gsub(v.detail, v.native_class .. ".", "")
+                    local s = string.gsub(v.detail, v.native_class .. "%.", "")
                     table.insert(methods, {info = s, desc = md_lines})
                     if #methods == 1 then
                         vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"# Methods"})
@@ -116,9 +143,12 @@ local function add_content_to_buffer(symbol)
                     if not has_signals then
                         vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# Signals"})
                         has_signals = true
+                    else
+                        vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {""})
                     end
+                    v.documentation = parse_markdown(v.documentation)
                     md_lines = vim.lsp.util.convert_input_to_markdown_lines(v.documentation)
-                    local s = string.gsub(v.detail, v.native_class .. ".", "")
+                    local s = string.gsub(v.detail, v.native_class .. "%.", "")
                     vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```gdscript", s, "```"})
                     vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, md_lines)
                     vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {""})
@@ -133,8 +163,9 @@ local function add_content_to_buffer(symbol)
                         vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# Enumerations"})
                         has_enums = true
                     end
+                    v.documentation = parse_markdown(v.documentation)
                     md_lines = vim.lsp.util.convert_input_to_markdown_lines(v.documentation)
-                    local s = string.gsub(v.detail, v.native_class .. ".", "")
+                    local s = string.gsub(v.detail, v.native_class .. "%.", "")
                     s = string.gsub(s, "const", "var")
                     vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```gdscript", s, "```"})
                     vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, md_lines)
