@@ -27,7 +27,7 @@ local function native_classes_default()
                     local selection = action_state.get_selected_entry()
 
                     if selection == nil then
-                        print("No class selected.")
+                        vim.notify("No class selected.", vim.log.levels.ERROR)
                         return
                     end
 
@@ -38,7 +38,7 @@ local function native_classes_default()
                     local selection = action_state.get_selected_entry()
 
                     if selection == nil then
-                        print("No class selected.")
+                        vim.notify("No class selected.", vim.log.levels.ERROR)
                         return
                     end
 
@@ -50,7 +50,7 @@ local function native_classes_default()
                     local selection = action_state.get_selected_entry()
 
                     if selection == nil then
-                        print("No class selected.")
+                        vim.notify("No class selected.", vim.log.levels.ERROR)
                         return
                     end
 
@@ -62,7 +62,7 @@ local function native_classes_default()
                     local selection = action_state.get_selected_entry()
 
                     if selection == nil then
-                        print("No class selected.")
+                        vim.notify("No class selected.", vim.log.levels.ERROR)
                         return
                     end
 
@@ -74,7 +74,7 @@ local function native_classes_default()
                     local selection = action_state.get_selected_entry()
 
                     if selection == nil then
-                        print("No class selected.")
+                        vim.notify("No class selected.", vim.log.levels.ERROR)
                         return
                     end
 
@@ -85,7 +85,7 @@ local function native_classes_default()
             end
         }):find()
     else
-        print("No classes found. Godot LSP is not initialized.")
+        vim.notify("No classes found. Godot LSP is not initialized.")
     end
 end
 
@@ -105,7 +105,7 @@ local function native_classes_tab()
                     local selection = action_state.get_selected_entry()
 
                     if selection == nil then
-                        print("No class selected.")
+                        vim.notify("No class selected.", vim.log.levels.ERROR)
                         return
                     end
 
@@ -115,7 +115,7 @@ local function native_classes_tab()
             end
         }):find()
     else
-        print("No classes found. Godot LSP is not initialized.")
+        vim.notify("No classes found. Godot LSP is not initialized.", vim.log.levels.ERROR)
     end
 end
 
@@ -135,7 +135,7 @@ local function native_classes_float()
                     local selection = action_state.get_selected_entry()
 
                     if selection == nil then
-                        print("No class selected.")
+                        vim.notify("No class selected.")
                         return
                     end
 
@@ -145,7 +145,7 @@ local function native_classes_float()
             end
         }):find()
     else
-        print("No classes found. Godot LSP is not initialized.")
+        vim.notify("No classes found. Godot LSP is not initialized.")
     end
 end
 
@@ -165,7 +165,7 @@ local function native_classes_split()
                     local selection = action_state.get_selected_entry()
 
                     if selection == nil then
-                        print("No class selected.")
+                        vim.notify("No class selected.")
                         return
                     end
 
@@ -175,7 +175,7 @@ local function native_classes_split()
             end
         }):find()
     else
-        print("No classes found. Godot LSP is not initialized.")
+        vim.notify("No classes found. Godot LSP is not initialized.")
     end
 end
 
@@ -195,7 +195,7 @@ local function native_classes_vsplit()
                     local selection = action_state.get_selected_entry()
 
                     if selection == nil then
-                        print("No class selected.")
+                        vim.notify("No class selected.")
                         return
                     end
 
@@ -205,7 +205,7 @@ local function native_classes_vsplit()
             end
         }):find()
     else
-        print("No classes found. Godot LSP is not initialized.")
+        vim.notify("No classes found. Godot LSP is not initialized.")
     end
 end
 

@@ -40,11 +40,13 @@ end
 ---@param title string Title for section
 ---@param list table Section content
 local function add_section_with_description(bufnr, title, list)
-    if #list > 0 then
-        vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# ".. title .. " Descriptions", ""})
-    end
+    local is_title_set = false
     for _, v in pairs(list) do
         if #v.desc > 0 then
+            if not is_title_set then
+                vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", "# ".. title .. " Descriptions", ""})
+                is_title_set = true
+            end
             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"```gdscript", v.info, "```"})
             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, v.desc)
             vim.api.nvim_buf_set_lines(bufnr, -1, -1, true, {"", ""})
@@ -54,6 +56,7 @@ end
 
 ---@param content string Content
 local function parse_markdown(content)
+    -- TODO: Clean this function
     content = string.gsub(content, "%[b]", "**")
     content = string.gsub(content, "%[/b]", "**")
     content = string.gsub(content, "%[code]", "`")
@@ -107,7 +110,6 @@ local function add_content_to_buffer(symbol)
                 if v.kind == 7 then
                     v.documentation = parse_markdown(v.documentation)
                     md_lines = vim.lsp.util.convert_input_to_markdown_lines(v.documentation)
-                    vim.print(md_lines)
                     local s = string.gsub(v.detail, v.native_class .. "%.", "")
                     table.insert(properties, {info = s, desc = md_lines})
                     if #properties == 1 then
@@ -194,7 +196,7 @@ local function add_content_to_buffer(symbol)
                 )
             end
         else
-            print("Native class not found.")
+            vim.notify("Native class not found.", vim.log.levels.ERROR)
         end
     end
     return bufnr
