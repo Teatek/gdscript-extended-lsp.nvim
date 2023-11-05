@@ -1,50 +1,140 @@
 # gdscript-extended-lsp.nvim
 
 Add viewing documentation support for Godot using LSP.
-Allows to search class on cursor position and in cmd.
 
-Note: This plugin is still a wip. There is a lot to do but it can already be useful for online documentation or in godot app replacement.
+Note: This plugin is still a WIP.
 
-User commands :
-* `:GodotDocSymbol <class_name>` Get documentation for a class.
-* `:GodotDocCursor` Get documentation for class on cursor position.
-* `:GodotDocTelescope` Get documentation for a class using Telescope.
-
+[gdscript-extended-lsp-demo.webm](https://github.com/Teatek/gdscript-extended-lsp.nvim/assets/38403802/0fb814b9-b28d-4399-bcff-81270aa6a36d)
 ## Installation
 
-```lua
--- lazy.nvim
-{
-    "Teatek/gdscript-extended-lsp.nvim"
-}
-```
-Suggested setup (replace already LSP setup for godot):
+For a good documentation viewing experience, it's recommended to have TreeSitter installed with markdown and markdown_inline parsers.
 
 ```lua
-local on_attach = function()
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, {buffer=0})
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, {buffer=0})
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition, {buffer=0})
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, {buffer=0})
-    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {buffer=0})
-    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {buffer=0})
-    vim.keymap.set({ "n", "i" }, "<C-k>", vim.lsp.buf.signature_help, {buffer=0})
-end
-require("gdscript_extended").setup({
-    on_attach = on_attach
-})
+
+-- lazy.nvim
+{
+  "Teatek/gdscript-extended-lsp.nvim"
+}
 ```
+
+## Setup
+
+Example setup (replace already LSP setup for godot):
+
+```lua
+local gdscript_ext = require("gdscript_extended")
+
+-- Function for buffers attached to lsp server
+local on_attach = function()
+
+  -- (Optional) User command with autocompletion
+  if vim.fn.exists(':GodotDoc') == 0 then
+    vim.api.nvim_create_user_command("GodotDoc", function(cmd)
+      -- Change the function depending on what you prefer
+      gdscript_ext.open_doc_in_vsplit_win(cmd.args, true)
+    end,{
+    nargs = 1,
+    complete = function()
+      return gdscript_ext.get_native_classes()
+    end
+    })
+  end
+
+  -- keymaps
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, {buffer=0})
+  vim.keymap.set("n", "gD", "<Cmd>lua require('').open_doc_on_cursor_in_vsplit_win(true)", {buffer=0})
+  vim.keymap.set("n", "gd", vim.lsp.buf.definition, {buffer=0})
+  vim.keymap.set('n', 'gr', vim.lsp.buf.references, {buffer=0})
+  vim.keymap.set("n", "<leader>D", "<Cmd>Telescope gdscript_extended vsplit<CR>", {buffer=0})
+  vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {buffer=0})
+  vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {buffer=0})
+  vim.keymap.set({ "n", "i" }, "<C-k>", vim.lsp.buf.signature_help, {buffer=0})
+end
+
+-- Function for documentation buffers
+local doc_conf = function(bufnr)
+  -- Don't forget to give the buffer handle to your keymaps, etc
+  vim.keymap.set("n", "gD", "<Cmd>lua require('').open_doc_on_cursor_in_vsplit_win(true)", {buffer=bufnr})
+  vim.keymap.set("n", "<leader>D", "<Cmd>Telescope gdscript_extended vsplit<CR>", {buffer=bufnr})
+end
+
+-- Setup with values we changed
+gdscript_ext.setup({
+  on_attach = on_attach,
+  doc_keymaps = {
+    user_config = doc_conf
+  },
+})
+ ```
 
 ## Configuration
 
 ```lua
 {
-    doc_style = 0, -- Open in a floating window (0), current window (1) or in a new tab (2)
-    on_attach = nil, -- on attach function for gdscript LSP setup
-    border = 0, -- Border style for floating windows
-    doc_extension = ".doc", -- Documentation file extension (can allow a better search in buffers list)
+  on_attach = function() -- Function to execute when new buffer gets attached to lsp
+  end,
+  doc_file_extension = ".doc", -- Documentation file extension (can for example allow a better search in buffers list with telescope)
+  doc_keymaps = {
+  close = {"q", "<Esc>"}, -- Keymaps for closing documentation window
+    user_config = function(bufnr) -- Attach function for the documentation buffer
+    end,
+  },
+  floating_win_size = 0.8, -- Border style for floating windows
+  floating_border_style = "none", -- Border style for floating windows (can be a string or an array: "none", "single", "double", "solid", "shadow")
 }
 ```
+
+## Usage
+
+Exposed function you can use in your keybindings:
+```lua
+require('gdscript_extended').open_doc_in_current_win(symbol_name)
+-- second param is for the direction of the window (false is bottom, true is top)
+require('gdscript_extended').open_doc_in_split_win(symbol_name, top)
+-- second param is for the direction of the window (false is left, true is right)
+require('gdscript_extended').open_doc_in_vsplit_win(symbol_name, right)
+require('gdscript_extended').open_doc_in_floating_win(symbol_name)
+require('gdscript_extended').open_doc_in_new_tab(symbol_name)
+
+-- Same without giving symbol name in function param (use word under the cursor)
+
+require('gdscript_extended').open_doc_on_cursor_in_current_win()
+require('gdscript_extended').open_doc_on_cursor_in_split_win(false)
+require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(right)
+require('gdscript_extended').open_doc_on_cursor_in_floating_win()
+require('gdscript_extended').open_doc_on_cursor_in_new_tab()
+
+```
+
+## Telescope
+
+```lua
+require('telescope').load_extension('gdscript_extended')
+```
+
+
+`:Telescope gdscript_extended default` : Open in current window
+
+`:Telescope gdscript_extended split` : Open in a split (to the top)
+
+`:Telescope gdscript_extended vsplit` : Open in a vsplit (to the right)
+
+`:Telescope gdscript_extended floating` : Open in a floating window
+
+`:Telescope gdscript_extended tab` : Open in a new tab
+
+
+
+Mapping for the default action `:Telescope gdscript_extended default` :
+
+| Key      | Action   |
+|----------|----------|
+| `<CR>`   | current  |
+| `<C-x>`  | split    |
+| `<C-v>`  | vsplit   |
+| `<C-f>`  | floating |
+| `<C-t>`  | tab      |
+
 
 ## License
 
