@@ -226,6 +226,12 @@ function M.open_doc_in_new_tab(symbol)
     end
 end
 
+--- Open documentation window inside a new tab with the word under cursor
+function M.open_doc_on_cursor_in_new_tab()
+    local wordUnderCursor = vim.fn.expand("<cword>")
+    M.open_doc_in_new_tab(wordUnderCursor)
+end
+
 --- Open documentation window inside a new vsplit window
 ---@param symbol string Symbol name
 ---@param right boolean Open documentation on the left or right
@@ -239,6 +245,13 @@ function M.open_doc_in_vsplit_win(symbol, right)
         vim.api.nvim_win_set_buf(0, bufnr)
         set_win_conceal(0)
     end
+end
+
+--- Open documentation window inside a new vsplit window with the word under cursor
+---@param right boolean Open documentation on the left or right
+function M.open_doc_on_cursor_in_vsplit_win(right)
+    local wordUnderCursor = vim.fn.expand("<cword>")
+    M.open_doc_in_vsplit_win(wordUnderCursor, right)
 end
 
 --- Open documentation window inside a new split window
@@ -256,6 +269,13 @@ function M.open_doc_in_split_win(symbol, top)
     end
 end
 
+--- Open documentation window inside a new split window with the word under cursor
+---@param top boolean Open documentation on the bottom or top
+function M.open_doc_on_cursor_in_split_win(top)
+    local wordUnderCursor = vim.fn.expand("<cword>")
+    M.open_doc_in_split_win(wordUnderCursor, top)
+end
+
 --- Open documentation window inside a new floating window
 ---@param symbol string Symbol name
 function M.open_doc_in_floating_win(symbol)
@@ -271,7 +291,13 @@ function M.open_doc_in_floating_win(symbol)
     end
 end
 
---- Open documentation window inside the current window
+--- Open documentation window inside a new floating window with the word under cursor
+function M.open_doc_on_cursor_in_floating_win()
+    local wordUnderCursor = vim.fn.expand("<cword>")
+    M.open_doc_in_floating_win(wordUnderCursor)
+end
+
+--- Open documentation inside the current window
 ---@param symbol string Symbol name
 function M.open_doc_in_current_win(symbol)
     local bufnr = create_doc_buffer(symbol)
@@ -279,6 +305,12 @@ function M.open_doc_in_current_win(symbol)
         vim.api.nvim_win_set_buf(0, bufnr)
         set_win_conceal(0)
     end
+end
+
+--- Open documentation inside the current window with the word under cursor
+function M.open_doc_on_cursor_in_current_win()
+    local wordUnderCursor = vim.fn.expand("<cword>")
+    M.open_doc_in_current_win(wordUnderCursor)
 end
 
 function M.setup(opts)
