@@ -41,7 +41,7 @@ local on_attach = function()
 
   -- keymaps
   vim.keymap.set("n", "K", vim.lsp.buf.hover, {buffer=0})
-  vim.keymap.set("n", "gD", "<Cmd>lua require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(true)", {buffer=0})
+  vim.keymap.set("n", "gD", "<Cmd>lua require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(true)<CR>", {buffer=0})
   vim.keymap.set("n", "gd", vim.lsp.buf.definition, {buffer=0})
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, {buffer=0})
   vim.keymap.set("n", "<leader>D", "<Cmd>Telescope gdscript_extended vsplit<CR>", {buffer=0})
@@ -52,8 +52,8 @@ end
 
 -- Function for documentation buffers
 local doc_conf = function(bufnr)
-  -- Don't forget to give the buffer handle to your keymaps, etc
-  vim.keymap.set("n", "gD", "<Cmd>lua require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(true)", {buffer=bufnr})
+  -- /!\ Don't forget to give the buffer handle to your keymaps, etc /!\
+  vim.keymap.set("n", "gD", "<Cmd>lua require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(true)<CR>", {buffer=bufnr})
   vim.keymap.set("n", "<leader>D", "<Cmd>Telescope gdscript_extended vsplit<CR>", {buffer=bufnr})
 end
 
