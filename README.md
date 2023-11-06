@@ -29,12 +29,12 @@ local on_attach = function()
   -- (Optional) User command with autocompletion
   if vim.fn.exists(':GodotDoc') == 0 then
     vim.api.nvim_create_user_command("GodotDoc", function(cmd)
-      -- Change the function depending on what you prefer
+      -- Change the function depending on your preferences 
       require('gdscript_extended').open_doc_in_vsplit_win(cmd.args, true)
     end,{
     nargs = 1,
     complete = function()
-      return gdscript_ext.get_native_classes()
+      return require('gdscript_extended').get_native_classes()
     end
     })
   end
