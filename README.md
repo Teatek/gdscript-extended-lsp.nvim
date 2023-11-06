@@ -5,6 +5,7 @@ Add viewing documentation support for Godot using LSP.
 Note: This plugin is still a WIP.
 
 [gdscript-extended-lsp-demo.webm](https://github.com/Teatek/gdscript-extended-lsp.nvim/assets/38403802/0fb814b9-b28d-4399-bcff-81270aa6a36d)
+
 ## Installation
 
 For a good documentation viewing experience, it's recommended to have TreeSitter installed with markdown and markdown_inline parsers.
@@ -22,8 +23,6 @@ For a good documentation viewing experience, it's recommended to have TreeSitter
 Example setup (replace already LSP setup for godot):
 
 ```lua
-local gdscript_ext = require("gdscript_extended")
-
 -- Function for buffers attached to lsp server
 local on_attach = function()
 
@@ -31,7 +30,7 @@ local on_attach = function()
   if vim.fn.exists(':GodotDoc') == 0 then
     vim.api.nvim_create_user_command("GodotDoc", function(cmd)
       -- Change the function depending on what you prefer
-      gdscript_ext.open_doc_in_vsplit_win(cmd.args, true)
+      require('gdscript_extended').open_doc_in_vsplit_win(cmd.args, true)
     end,{
     nargs = 1,
     complete = function()
@@ -42,7 +41,7 @@ local on_attach = function()
 
   -- keymaps
   vim.keymap.set("n", "K", vim.lsp.buf.hover, {buffer=0})
-  vim.keymap.set("n", "gD", "<Cmd>lua require('').open_doc_on_cursor_in_vsplit_win(true)", {buffer=0})
+  vim.keymap.set("n", "gD", "<Cmd>lua require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(true)", {buffer=0})
   vim.keymap.set("n", "gd", vim.lsp.buf.definition, {buffer=0})
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, {buffer=0})
   vim.keymap.set("n", "<leader>D", "<Cmd>Telescope gdscript_extended vsplit<CR>", {buffer=0})
@@ -54,12 +53,12 @@ end
 -- Function for documentation buffers
 local doc_conf = function(bufnr)
   -- Don't forget to give the buffer handle to your keymaps, etc
-  vim.keymap.set("n", "gD", "<Cmd>lua require('').open_doc_on_cursor_in_vsplit_win(true)", {buffer=bufnr})
+  vim.keymap.set("n", "gD", "<Cmd>lua require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(true)", {buffer=bufnr})
   vim.keymap.set("n", "<leader>D", "<Cmd>Telescope gdscript_extended vsplit<CR>", {buffer=bufnr})
 end
 
 -- Setup with values we changed
-gdscript_ext.setup({
+require('gdscript_extended').setup({
   on_attach = on_attach,
   doc_keymaps = {
     user_config = doc_conf
@@ -99,7 +98,7 @@ require('gdscript_extended').open_doc_in_new_tab(symbol_name)
 -- Same without giving symbol name in function param (use word under the cursor)
 
 require('gdscript_extended').open_doc_on_cursor_in_current_win()
-require('gdscript_extended').open_doc_on_cursor_in_split_win(false)
+require('gdscript_extended').open_doc_on_cursor_in_split_win(top)
 require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(right)
 require('gdscript_extended').open_doc_on_cursor_in_floating_win()
 require('gdscript_extended').open_doc_on_cursor_in_new_tab()
