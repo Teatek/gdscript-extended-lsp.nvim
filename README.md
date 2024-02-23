@@ -18,6 +18,8 @@ For a good documentation viewing experience, it's recommended to have TreeSitter
 }
 ```
 
+**Important** : For windows, ncat need to be installed. Without it, neovim wont be able to attach to the LSP server.
+
 ## Setup
 
 Example setup (replace already LSP setup for godot):
@@ -29,7 +31,7 @@ local on_attach = function()
   -- (Optional) User command with autocompletion
   if vim.fn.exists(':GodotDoc') == 0 then
     vim.api.nvim_create_user_command("GodotDoc", function(cmd)
-      -- Change the function depending on your preferences 
+      -- Change the function depending on your preferences
       require('gdscript_extended').open_doc_in_vsplit_win(cmd.args, true)
     end,{
     nargs = 1,

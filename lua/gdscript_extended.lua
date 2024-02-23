@@ -316,6 +316,17 @@ end
 function M.setup(opts)
     -- user plugin config
     config.setup(opts)
+    local host = '127.0.0.1'
+    local port = os.getenv 'GDScript_Port' or '6005'
+    local cmd = { 'nc', host, port }
+
+    if vim.fn.has('win32') then
+        cmd[1] = 'ncat'
+    else
+        if vim.fn.has('nvim-0.8') == 1 then
+            cmd = vim.lsp.rpc.connect(host, port)
+        end
+    end
 
     -- LSP Setup
     require('lspconfig').gdscript.setup({
@@ -325,6 +336,7 @@ function M.setup(opts)
                 client_id = client.id
             end
         end,
+        cmd = cmd,
         handlers = {
             ["gdscript/capabilities"] = function(_, result, _)
                 -- add all the classes found
