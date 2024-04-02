@@ -320,7 +320,7 @@ function M.setup(opts)
     local port = os.getenv 'GDScript_Port' or '6005'
     local cmd = { 'nc', host, port }
 
-    if vim.fn.has('win32') then
+    if vim.fn.has('win32') == 1 then
         cmd[1] = 'ncat'
     else
         if vim.fn.has('nvim-0.8') == 1 then
