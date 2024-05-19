@@ -66,7 +66,67 @@ require('gdscript_extended').setup({
     user_config = doc_conf
   },
 })
- ```
+```
+
+Example setup without replace LSP setup for godot (useful for astronvim, lazyvim, etc):
+
+```lua
+-- Function for buffers attached to lsp server
+local on_attach = function()
+
+  -- (Optional) User command with autocompletion
+  if vim.fn.exists(':GodotDoc') == 0 then
+    vim.api.nvim_create_user_command("GodotDoc", function(cmd)
+      -- Change the function depending on your preferences
+      require('gdscript_extended').open_doc_in_vsplit_win(cmd.args, true)
+    end,{
+    nargs = 1,
+    complete = function()
+      return require('gdscript_extended').get_native_classes()
+    end
+    })
+  end
+
+  -- keymaps
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, {buffer=0})
+  vim.keymap.set("n", "gD", "<Cmd>lua require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(true)<CR>", {buffer=0})
+  vim.keymap.set("n", "gd", vim.lsp.buf.definition, {buffer=0})
+  vim.keymap.set('n', 'gr', vim.lsp.buf.references, {buffer=0})
+  vim.keymap.set("n", "<leader>D", "<Cmd>Telescope gdscript_extended vsplit<CR>", {buffer=0})
+  vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {buffer=0})
+  vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {buffer=0})
+  vim.keymap.set({ "n", "i" }, "<C-k>", vim.lsp.buf.signature_help, {buffer=0})
+end
+
+-- Function for documentation buffers
+local doc_conf = function(bufnr)
+  -- /!\ Don't forget to give the buffer handle to your keymaps, etc /!\
+  vim.keymap.set("n", "gD", "<Cmd>lua require('gdscript_extended').open_doc_on_cursor_in_vsplit_win(true)<CR>", {buffer=bufnr})
+  vim.keymap.set("n", "<leader>D", "<Cmd>Telescope gdscript_extended vsplit<CR>", {buffer=bufnr})
+end
+
+-- Setup with values we changed
+require("gdscript_extended").setup({
+  on_attach = on_attach,
+  doc_keymaps = {
+    user_config = doc_conf,
+  },
+  -- Disable auto lsp setup
+  lsp_setup = false,
+})
+
+-- Your custom lsp setup, only thing important is add a new handler
+require("lspconfig").gdscript.setup({
+  cmd = { "nc", "localhost", "6005" },
+  on_attach = function(client, bufnr) vim.api.nvim_command('echo serverstart("' .. pipe .. '")') end,
+  handlers = {
+    -- This makes the magic happens
+    ["gdscript/capabilities"] = require("gdscript_extended").get_capabilities_handler(),
+  },
+})
+
+
+```
 
 ## Configuration
 
@@ -82,12 +142,14 @@ require('gdscript_extended').setup({
   },
   floating_win_size = 0.8, -- Border style for floating windows
   floating_border_style = "none", -- Border style for floating windows (can be a string or an array: "none", "single", "double", "solid", "shadow")
+  lsp_setup = true, -- If false the extension will not call the lsp setup. Useful for super-nvims (astronvim, lazyvim, etc...) or if you wanna do the setup for yourself with extra things
 }
 ```
 
 ## Usage
 
 Exposed function you can use in your keybindings:
+
 ```lua
 require('gdscript_extended').open_doc_in_current_win(symbol_name)
 -- second param is for the direction of the window (false is bottom, true is top)
@@ -113,7 +175,6 @@ require('gdscript_extended').open_doc_on_cursor_in_new_tab()
 require('telescope').load_extension('gdscript_extended')
 ```
 
-
 `:Telescope gdscript_extended default` : Open in current window
 
 `:Telescope gdscript_extended split` : Open in a split (to the top)
@@ -124,18 +185,15 @@ require('telescope').load_extension('gdscript_extended')
 
 `:Telescope gdscript_extended tab` : Open in a new tab
 
-
-
 Mapping for the default action `:Telescope gdscript_extended default` :
 
-| Key      | Action   |
-|----------|----------|
-| `<CR>`   | current  |
-| `<C-x>`  | split    |
-| `<C-v>`  | vsplit   |
-| `<C-f>`  | floating |
-| `<C-t>`  | tab      |
-
+| Key     | Action   |
+| ------- | -------- |
+| `<CR>`  | current  |
+| `<C-x>` | split    |
+| `<C-v>` | vsplit   |
+| `<C-f>` | floating |
+| `<C-t>` | tab      |
 
 ## License
 
