@@ -66,7 +66,7 @@ end
 ---@param win integer Window handle, or 0 for current window
 local function set_win_conceal(win)
     vim.api.nvim_set_option_value("concealcursor", "n", { win = win })
-    vim.api.nvim_set_option_value("conceallevel", 2, { win = win })
+    vim.api.nvim_set_option_value("conceallevel", 1, { win = win })
 end
 
 
