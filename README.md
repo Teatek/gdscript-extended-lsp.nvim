@@ -1,4 +1,4 @@
-# gdscript-extended-lsp.nim
+# gdscript-extended-lsp.nvim
 
 ## Features
 
