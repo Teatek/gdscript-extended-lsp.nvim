@@ -7,7 +7,7 @@
 - Jump to file on `res://resource/path` with `gf`
 - Telescope integration (search for documentation class)
 
-[gdscript-extended-lsp-demo.webm](https://github.com/Teatek/gdscript-extended-lsp.nvim/assets/38403802/0fb814b9-b28d-4399-bcff-81270aa6a36d)
+[gdscript-extended-lsp-demo.webm](https://github.com/user-attachments/assets/52cc29db-2612-4bfd-b963-3217cdb2f3be)
 
 ## Installation
 
@@ -41,7 +41,7 @@ While viewing documentation in Neovim, use `gf` to open the class under the curs
 
 ## Usage
 
-`:Godot doc <symbol>` : Open class documentation
+`:GodotDoc <symbol>` : Open class documentation
 
 Exposed functions :
 
