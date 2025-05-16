@@ -40,6 +40,8 @@ While viewing documentation in Neovim, use `gf` to open the class under the curs
 }
 ```
 
+If you prefer viewing documentation in the Godot editor, toggle on: `network/language_server/show_native_symbols_in_editor` in the godot editor settings.
+
 ## Usage
 
 `:GodotDoc <symbol>` : Open class documentation
