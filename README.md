@@ -11,9 +11,10 @@
 
 ## Installation
 
-⚠️ This plugin does not set up the LSP client. It simply attaches and sets a keymap for "go to definition" (`gd` by default). This way you can customize your own keybindings in your LSP configuration.
+⚠️ This plugin does not set up the LSP client.
 
-If you use this plugin to view documentation inside Neovim (instead of within Godot), it is recommended to have Tree-sitter installed with the markdown and markdown_inline parsers.
+It simply attaches and sets a keymap for "go to definition" (`gd` by default). This way you can customize your own keybindings in your LSP configuration.
+
 While viewing documentation in Neovim, use `gf` to open the class under the cursor.
 
 ```lua
