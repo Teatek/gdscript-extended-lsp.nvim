@@ -196,7 +196,6 @@ local function show_native_symbol_handler(ctx, result, params)
                 -- create documentation using LSP server
                 local filename = result.native_class .. M.options.doc_file_extension
                 bufnr = vim.api.nvim_create_buf(true, true)
-                vim.api.nvim_set_option_value("filetype", "markdown", { buf = bufnr })
 
                 vim.api.nvim_buf_set_name(bufnr, filename)
                 result.documentation = parse_markdown(result.documentation)
@@ -306,6 +305,7 @@ local function show_native_symbol_handler(ctx, result, params)
                 end
 
                 open_documentation_view(bufnr)
+                vim.bo[bufnr].filetype = 'markdown'
                 set_win_conceal(0)
 
                 if is_doc_cursor then
