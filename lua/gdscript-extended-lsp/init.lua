@@ -11,6 +11,7 @@ local defaults = {
         close = { "q", "<Esc>" },
     },
     floating_win_size = 0.8,
+	picker = "telescope",
 }
 
 
@@ -408,6 +409,17 @@ function M.setup(opts)
     M.options = vim.tbl_deep_extend("force", defaults, opts or {})
 
     set_attach()
+end
+
+M.pick = function()
+	local picker = require("gdscript-extended-lsp.picker")
+	if M.options.picker == "telescope" then
+		picker.telescope()
+	elseif M.options.picker == "snacks" then
+		picker.snacks()
+	else
+		vim.notify("'" .. M.options.picker .. "' Not supported", vim.log.levels.ERROR)
+	end
 end
 
 better_gf()
