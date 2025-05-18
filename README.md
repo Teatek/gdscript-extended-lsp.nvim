@@ -4,8 +4,9 @@
 
 - Documentation support for Godot using LSP (inside Neovim or Godot).
 - Search documentation class (with auto completion)
+- Jump to declaration, definition, or documentation (`gd` by default)
 - Jump to file on `res://resource/path` with `gf`
-- Telescope integration (search for documentation class)
+- Telescope and snacks integration (search for documentation class)
 
 [gdscript-extended-lsp-demo.webm](https://github.com/user-attachments/assets/52cc29db-2612-4bfd-b963-3217cdb2f3be)
 
@@ -37,6 +38,7 @@ While viewing documentation in Neovim, use `gf` to open the class under the curs
     close = { "q", "<Esc>" }, -- Keymap for closing the documentation
   },
   floating_win_size = 0.8, -- Floating window size
+  picker = "telescope" -- Options : "telescope", "snacks"
 }
 ```
 
@@ -52,6 +54,8 @@ Exposed functions :
 require('gdscript-extended-lsp').get_classes() -- get list of godot classes
 
 require('gdscript-extended-lsp').request_doc_class(symbol) -- get documentation for a class
+
+require('gdscript-extended-lsp').picker() -- Search for doc with a picker (set by picker setting in the config)
 ```
 
 ## Telescope
