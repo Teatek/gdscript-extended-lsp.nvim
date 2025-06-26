@@ -399,18 +399,30 @@ local function better_gf()
 		local custom_dir_name = M.get_project_config("application/config/custom_user_dir_name")
 		if custom_dir_name ~= nil then
 			project_data_dir = user_data_dir .. custom_dir_name .. "/"
-		else
+		elseif project_name ~= nil then
 			project_data_dir = user_data_dir .. project_name .. "/"
 		end
-	else
+	elseif project_name ~= nil then
 		project_data_dir = user_data_dir .. "godot/app_userdata/" .. project_name .. "/"
 	end
 
 	vim.keymap.set("n", "gf", function()
-		local original_file = vim.fn.expand("<cfile>")
-		local file = original_file:gsub("^res://", "")
-		file = file:gsub("^user://", project_data_dir)
+		local file = vim.fn.expand("<cfile>")
+		if file == nil or file == "" then
+			vim.notify("Not a file", vim.log.levels.ERROR, { title = "gdscript-extended-lsp" })
+			return
+		end
+		if file:find("^res://") ~= nil then
+			file = file:gsub("^res://", "")
+		end
+		if file:find("^user://") ~= nil then
+			file = file:gsub("^user://", project_data_dir)
+		end
 
+		if vim.fn.filereadable(file) == 0 then
+			vim.notify("File " .. file .. " does not exist", vim.log.levels.ERROR, { title = "gdscript-extended-lsp" })
+			return
+		end
 		vim.cmd.edit(file)
 	end)
 end
