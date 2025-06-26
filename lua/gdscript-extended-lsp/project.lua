@@ -52,6 +52,9 @@ end
 ---@param config_path string The path to the option
 ---@return string | nil value
 function M.get_project_config(config_path)
+	if vim.fn.filereadable("project.godot") == 0 then
+		return nil
+	end
 	local value = get_project_config_raw(config_path)
 	if value == nil or value:sub(1, 1) ~= '"' then
 		return value
