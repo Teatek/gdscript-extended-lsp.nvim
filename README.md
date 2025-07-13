@@ -38,7 +38,7 @@ While viewing documentation in Neovim, use `gf` to open the class under the curs
     close = { "q", "<Esc>" }, -- Keymap for closing the documentation
   },
   floating_win_size = 0.8, -- Floating window size
-  picker = "telescope" -- Options : "telescope", "snacks"
+  picker = "telescope" -- Options : "telescope", "snacks", "fzf-lua"
 }
 ```
 
