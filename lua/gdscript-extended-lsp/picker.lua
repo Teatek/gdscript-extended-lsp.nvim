@@ -92,4 +92,15 @@ function M.telescope()
     end
 end
 
+function M.fzf_lua()
+    local opts = {}
+    opts.actions = {
+        ["default"] = function(selected)
+            require("gdscript-extended-lsp").request_doc_class(selected[1])
+        end,
+    }
+    opts.winopts = { title = "Godot Classes" }
+    require("fzf-lua").fzf_exec(require("gdscript-extended-lsp").get_classes(), opts)
+end
+
 return M

@@ -417,6 +417,8 @@ function M.pick()
         picker.telescope()
     elseif M.options.picker == "snacks" then
         picker.snacks()
+    elseif M.options.picker == "fzf-lua" then
+        picker.fzf_lua()
     else
         vim.notify("'" .. M.options.picker .. "' Not supported", vim.log.levels.ERROR)
     end
