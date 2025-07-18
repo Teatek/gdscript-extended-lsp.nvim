@@ -19,7 +19,7 @@ vim.api.nvim_create_user_command("GodotDoc",
             -- Completion
             for _, class in ipairs(require("gdscript-extended-lsp").get_classes()) do
                 -- Find only classes that begin with current arg
-                if string.match(class, arg) then
+                if string.match(class:lower(), arg:lower()) then
                     table.insert(comp, class)
                 end
             end
