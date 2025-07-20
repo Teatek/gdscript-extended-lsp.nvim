@@ -140,7 +140,7 @@ function M.request_doc_class(symbol)
 
         -- After the LSP attaches, send a declaration request
         vim.defer_fn(function()
-            client:request(
+            client.request(
                 "textDocument/declaration",
                 {
                     position = { character = 9, line = 0 },
