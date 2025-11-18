@@ -55,7 +55,7 @@ require('gdscript-extended-lsp').get_classes() -- get list of godot classes
 
 require('gdscript-extended-lsp').request_doc_class(symbol) -- get documentation for a class
 
-require('gdscript-extended-lsp').picker() -- Search for doc with a picker (set by picker setting in the config)
+require('gdscript-extended-lsp').pick() -- Search for doc with a picker (set by picker setting in the config)
 ```
 
 ## Telescope
