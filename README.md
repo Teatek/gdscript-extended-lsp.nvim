@@ -1,5 +1,7 @@
 # gdscript-extended-lsp.nvim
 
+🐛 As the moment, there is a bug in Godot 4.5 that prevents this plugin from functioning properly. It has been patched in version 4.6, but the fix has not yet been backported to version 4.5.
+
 ## Features
 
 - Documentation support for Godot using LSP (inside Neovim or Godot).
